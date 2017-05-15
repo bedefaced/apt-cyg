@@ -123,9 +123,21 @@ function wget {
   then
     command wget "$@"
   else
-    warn wget is not installed, using lynx as fallback
-    set "${*: -1}"
-    lynx -source "$1" > "${1##*/}"
+    if command lynx -h &>/dev/null
+	then
+		warn wget is not installed, using lynx as fallback
+		set "${*: -1}"
+		lynx -source "$1" > "${1##*/}"
+    else
+		if command curl -h &>/dev/null
+		then
+			warn wget, lynx is not installed, using curl as fallback
+			set "${*: -1}"
+			curl -sSL "$1" -o "${1##*/}"
+		else
+			exit -1
+		fi
+	fi
   fi
 }
 
